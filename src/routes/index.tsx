@@ -23,9 +23,9 @@ export const Route = createFileRoute("/")({
 });
 
 const DEMO_URLS = [
-  { label: "Valid free endpoint", url: "https://httpbin.org/json", kind: "free" as const },
-  { label: "Broken x402 endpoint", url: "https://httpbin.org/status/402", kind: "broken" as const },
-  { label: "Valid x402 structure", url: "https://demo.probekit.dev/x402", kind: "valid" as const },
+  { label: "Valid free endpoint", url: "/api/demo/free", kind: "free" as const },
+  { label: "Broken x402 endpoint", url: "/api/demo/broken-x402", kind: "broken" as const },
+  { label: "Valid x402 structure", url: "/api/demo/valid-x402", kind: "valid" as const },
 ];
 
 function LandingPage() {
@@ -152,7 +152,7 @@ function MiniAudit() {
             <button
               key={d.url}
               type="button"
-              onClick={() => setUrl(d.url)}
+              onClick={() => setUrl(new URL(d.url, window.location.origin).toString())}
               className="text-xs font-mono px-2.5 py-1 rounded-full border border-border hover:border-lime hover:text-lime transition-colors"
             >
               {d.label}

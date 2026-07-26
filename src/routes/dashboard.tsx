@@ -31,10 +31,14 @@ export const Route = createFileRoute("/dashboard")({
 });
 
 const DEMOS = [
-  { key: "free" as const, title: "Valid Free", url: "https://httpbin.org/json", method: "GET" as const, desc: "Returns HTTP 200 with structured JSON." },
-  { key: "broken" as const, title: "Broken x402", url: "https://httpbin.org/status/402", method: "GET" as const, desc: "Returns HTTP 402 with an invalid challenge." },
-  { key: "valid" as const, title: "Valid x402 Structure", url: "https://demo.probekit.dev/x402", method: "GET" as const, desc: "Structurally valid demonstration challenge (non-settlement)." },
+  { key: "free" as const, title: "Valid Free", url: "/api/demo/free", method: "GET" as const, desc: "Returns HTTP 200 with structured JSON." },
+  { key: "broken" as const, title: "Broken x402", url: "/api/demo/broken-x402", method: "GET" as const, desc: "Returns HTTP 402 with a missing challenge." },
+  { key: "valid" as const, title: "Valid x402 Structure", url: "/api/demo/valid-x402", method: "GET" as const, desc: "Structurally valid demonstration challenge (non-settlement)." },
 ];
+
+function absoluteDemoUrl(path: string): string {
+  return new URL(path, window.location.origin).toString();
+}
 
 const SCAN_STEPS = [
   "Validating URL", "Resolving hostname", "Checking destination safety",
@@ -58,7 +62,7 @@ function DashboardPage() {
   useEffect(() => {
     if (search.demo) {
       const d = DEMOS.find(x => x.key === search.demo);
-      if (d) { setUrl(d.url); setMethod(d.method); }
+      if (d) { setUrl(absoluteDemoUrl(d.url)); setMethod(d.method); }
     }
   }, [search.demo]);
 
@@ -131,7 +135,7 @@ function DashboardPage() {
             onRun={runAudit} running={running}
             onClear={() => { setUrl(""); setBody("{}"); setReport(null); setError(null); }}
           />
-          <DemoSelector onPick={(d) => { setUrl(d.url); setMethod(d.method); }} />
+          <DemoSelector onPick={(d) => { setUrl(absoluteDemoUrl(d.url)); setMethod(d.method); }} />
           {running && <ScanProgress step={scanStep} elapsed={elapsed} onCancel={() => abortRef.current?.abort()} />}
           {error && !running && <ErrorState message={error} onRetry={runAudit} />}
           {report && !running && <Results report={report} />}
@@ -255,7 +259,7 @@ function AuditForm({
             <RotateCcw className="h-4 w-4" /> Clear
           </button>
           <span className="text-xs text-muted-foreground ml-auto font-mono">
-            {method === "POST" ? "POST + body" : "GET"} · timeout 12s
+            {method === "POST" ? "POST + body" : "GET"} · timeout 5s
           </span>
         </div>
       </form>

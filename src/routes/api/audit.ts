@@ -309,6 +309,18 @@ function finalize(checks: AuditCheck[], targetUrl: string, started: number, http
 export const Route = createFileRoute("/api/audit")({
   server: {
     handlers: {
+      GET: async () => Response.json({
+        error: "Method not allowed.",
+        message: "ASP ProbeKit audits endpoints through POST /api/audit.",
+        example: {
+          targetUrl: "https://example.com/api/service",
+          method: "GET",
+          requestBody: {},
+        },
+      }, {
+        status: 405,
+        headers: { allow: "POST, OPTIONS", "cache-control": "no-store" },
+      }),
       POST: async ({ request }) => {
         const contentLength = Number(request.headers.get("content-length") ?? 0);
         if (contentLength > MAX_REQUEST_BYTES) return Response.json({ error: "Request body exceeds 32 KB." }, { status: 413 });
