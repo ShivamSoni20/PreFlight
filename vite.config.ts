@@ -13,6 +13,8 @@ export default defineConfig({
     }),
     viteReact(),
     tailwindcss(),
-    nitro({ preset: "node-server" }),
+    // Nitro auto-detects Vercel in CI and emits the Vercel Build Output API.
+    // Local builds fall back to the portable Node server output.
+    nitro(),
   ],
 });
