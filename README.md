@@ -11,7 +11,7 @@
 
 [Launch ProbeKit](https://probe-kit-flax.vercel.app) | [Run an audit](https://probe-kit-flax.vercel.app/dashboard) | [Check service health](https://probe-kit-flax.vercel.app/api/health) | [View the API](#api-reference)
 
-![ASP ProbeKit product preview](./ChatGPT%20Image%20Jul%2027%2C%202026%2C%2012_55_18%20AM.png)
+![ASP ProbeKit product preview](./assets.png)
 
 ## The problem
 
