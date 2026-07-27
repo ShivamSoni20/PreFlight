@@ -8,6 +8,10 @@ JSON responses, x402 v2 challenges, X Layer payment fields, and common
 configuration failures, then returns a structured report with actionable
 fixes.
 
+[Live application](https://probe-kit-flax.vercel.app) ·
+[Audit dashboard](https://probe-kit-flax.vercel.app/dashboard) ·
+[Health endpoint](https://probe-kit-flax.vercel.app/api/health)
+
 ![ASP ProbeKit product preview](./ChatGPT%20Image%20Jul%2027%2C%202026%2C%2012_55_18%20AM.png)
 
 ## Why ProbeKit?
@@ -174,7 +178,10 @@ ASP ProbeKit was built for the **OKX.AI Genesis Hackathon** in the **Software
 Services / Software Utility** category.
 
 - Service name: `ASP ProbeKit`
+- OKX.AI ASP ID: `#9642`
+- Registered service: `Endpoint Readiness Audit`
 - A2MCP price: Free
+- Production endpoint: `https://probe-kit-flax.vercel.app/api/audit`
 - Positioning: Preflight validator for free and x402-powered A2MCP endpoints
 
 ## Disclaimer

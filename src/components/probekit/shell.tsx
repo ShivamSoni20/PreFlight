@@ -25,9 +25,9 @@ export function Navigation() {
   }, []);
 
   const navLinks = [
-    { href: "#how", label: "How it works" },
-    { href: "#checks", label: "Checks" },
-    { href: "#security", label: "Security" },
+    { href: "/#how", label: "How it works" },
+    { href: "/#checks", label: "Checks" },
+    { href: "/#security", label: "Security" },
   ];
 
   return (
@@ -54,7 +54,7 @@ export function Navigation() {
           {navLinks.map(l => (
             <a key={l.href} href={l.href} className="hover:text-foreground transition-colors">{l.label}</a>
           ))}
-          <a href="https://github.com" target="_blank" rel="noreferrer" className="flex items-center gap-1.5 hover:text-foreground transition-colors">
+          <a href="https://github.com/ShivamSoni20/ProbeKit" target="_blank" rel="noreferrer" className="flex items-center gap-1.5 hover:text-foreground transition-colors">
             <Github className="h-4 w-4" /> GitHub
           </a>
         </nav>
@@ -86,7 +86,7 @@ export function Navigation() {
             {navLinks.map(l => (
               <a key={l.href} href={l.href} onClick={() => setOpen(false)} className="py-2 text-foreground">{l.label}</a>
             ))}
-            <a href="https://github.com" target="_blank" rel="noreferrer" className="py-2 flex items-center gap-2">
+            <a href="https://github.com/ShivamSoni20/ProbeKit" target="_blank" rel="noreferrer" className="py-2 flex items-center gap-2">
               <Github className="h-4 w-4" /> GitHub <ExternalLink className="h-3 w-3" />
             </a>
             <Link
@@ -120,16 +120,16 @@ export function Footer() {
           <div className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-3">Product</div>
           <ul className="space-y-2 text-sm">
             <li><Link to="/dashboard" className="hover:text-lime">Dashboard</Link></li>
-            <li><a href="#how" className="hover:text-lime">How it works</a></li>
-            <li><a href="#checks" className="hover:text-lime">Checks</a></li>
+            <li><a href="/#how" className="hover:text-lime">How it works</a></li>
+            <li><a href="/#checks" className="hover:text-lime">Checks</a></li>
           </ul>
         </div>
         <div>
           <div className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-3">Resources</div>
           <ul className="space-y-2 text-sm">
-            <li><a href="https://github.com" className="hover:text-lime">GitHub</a></li>
-            <li><a href="#" className="hover:text-lime">Documentation</a></li>
-            <li><a href="#security" className="hover:text-lime">Security</a></li>
+            <li><a href="https://github.com/ShivamSoni20/ProbeKit" target="_blank" rel="noreferrer" className="hover:text-lime">GitHub</a></li>
+            <li><a href="https://github.com/ShivamSoni20/ProbeKit#readme" target="_blank" rel="noreferrer" className="hover:text-lime">Documentation</a></li>
+            <li><a href="/#security" className="hover:text-lime">Security</a></li>
           </ul>
         </div>
         <div>
