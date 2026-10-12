@@ -29,9 +29,9 @@ export function HeroScanner() {
   }, [done]);
 
   return (
-    <div className="relative rounded-2xl border border-border bg-panel/60 backdrop-blur overflow-hidden shadow-[0_0_60px_-20px_rgba(163,255,79,0.25)]">
+    <div className="relative rounded-2xl border border-border bg-panel/75 backdrop-blur overflow-hidden shadow-[0_0_60px_-20px_rgba(163,255,79,0.3)] w-full max-w-xl mx-auto">
       {/* Terminal chrome */}
-      <div className="flex items-center gap-2 border-b border-border bg-panel px-4 py-2.5">
+      <div className="flex items-center gap-2 border-b border-border bg-panel px-4 py-3">
         <span className="h-2.5 w-2.5 rounded-full bg-coral/70" />
         <span className="h-2.5 w-2.5 rounded-full bg-amber/70" />
         <span className="h-2.5 w-2.5 rounded-full bg-pass/70" />
@@ -43,7 +43,7 @@ export function HeroScanner() {
         </span>
       </div>
 
-      <div className="relative p-5 font-mono text-sm space-y-1.5 min-h-[380px]">
+      <div className="relative p-5 sm:p-6 font-mono text-sm space-y-2 min-h-[390px]">
         {/* Scan line */}
         <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-lime/10 to-transparent animate-scan" />
 

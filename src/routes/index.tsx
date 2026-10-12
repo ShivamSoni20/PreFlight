@@ -1,45 +1,38 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import {
-  ArrowRight, Zap, Shield, Terminal, Wifi, Lock, Radio, Boxes,
-  CheckCircle2, AlertTriangle, XCircle, Globe, Server, KeyRound,
-  Clock, Cpu, Network, Code2, FileJson, Fingerprint, Database,
-  Wrench, Search, Package,
+  ArrowRight, Shield, Globe, Radio, Wrench, CheckCircle2,
+  Lock, Wifi, Server, KeyRound, FileJson, Code2, Fingerprint,
+  Boxes, Network, Database, Package, Cpu, Clock, Zap, Loader2, Sparkles, AlertCircle
 } from "lucide-react";
 import { Navigation, Footer, DisclaimerBanner } from "@/components/preflight/shell";
 import { HeroScanner } from "@/components/preflight/hero-scanner";
+import { ScoreGauge } from "@/components/preflight/audit-ui";
+import type { AuditReport } from "@/lib/preflight-types";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Preflight — Ship your agent service with confidence" },
-      { name: "description", content: "Preflight validator for free and x402-powered A2MCP endpoints. Catch endpoint, HTTP and x402 compatibility problems before your service reaches marketplace review." },
-      { property: "og:title", content: "Preflight — Test before you list" },
-      { property: "og:description", content: "A protocol preflight lab for agent services. Deterministic checks, no login, no secrets." },
+      { title: "Preflight — Test your agent service before the marketplace does" },
+      { name: "description", content: "Preflight probes your public agent endpoint for network, protocol, and x402 payment behavior — returning readiness scores with evidence for every check." },
+      { property: "og:title", content: "Preflight — Test your agent service before the marketplace does" },
+      { property: "og:description", content: "Deterministic agent endpoint validation. 16 probes, live fixtures, and grounded remediation." },
     ],
   }),
   component: LandingPage,
 });
 
-const DEMO_URLS = [
-  { label: "Valid free endpoint", url: "/api/demo/free", kind: "free" as const },
-  { label: "Broken x402 endpoint", url: "/api/demo/broken-x402", kind: "broken" as const },
-  { label: "Valid x402 structure", url: "/api/demo/valid-x402", kind: "valid" as const },
-];
-
 function LandingPage() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground flex flex-col">
       <Navigation />
       <Hero />
-      <MiniAudit />
-      <Problems />
+      <MagicMoment />
       <HowItWorks />
-      <ProtocolCoverage />
-      <ExampleReport />
+      <WhyItIsBetter />
+      <ProofSection />
       <SecuritySection />
-      <BuiltForAgents />
       <Faq />
       <FinalCta />
       <Footer />
@@ -47,43 +40,50 @@ function LandingPage() {
   );
 }
 
+// ---------------------------------------------------------------------------
+// 1. Hero Section
+// ---------------------------------------------------------------------------
+
 function Hero() {
   return (
-    <section className="relative overflow-hidden">
-      <div className="absolute inset-0 grid-bg opacity-40 [mask-image:radial-gradient(ellipse_at_top,black,transparent_70%)]" />
+    <section className="relative overflow-hidden py-16 md:py-24 border-b border-border/60">
+      <div className="absolute inset-0 grid-bg opacity-35 [mask-image:radial-gradient(ellipse_at_top,black,transparent_75%)]" />
       <div className="absolute inset-x-0 top-0 h-96 bg-gradient-to-b from-lime/5 to-transparent pointer-events-none" />
-      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 py-16 md:py-24 grid gap-12 lg:grid-cols-[1.05fr_1fr] items-center">
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 grid gap-12 lg:grid-cols-[1.1fr_1fr] items-center">
         <div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-panel px-3 py-1 text-xs font-mono uppercase tracking-widest text-muted-foreground">
+          <div className="inline-flex items-center gap-2 rounded-full border border-lime/40 bg-lime/10 px-3 py-1 text-xs font-mono uppercase tracking-widest text-lime">
             <span className="h-1.5 w-1.5 rounded-full bg-lime animate-blink" />
-            A protocol preflight lab for agent services
+            FOR AGENT SERVICE PROVIDERS
           </div>
-          <h1 className="mt-6 text-5xl sm:text-6xl md:text-7xl font-bold tracking-tight leading-[1.02]">
-            Ship your ASP
-            <br />
-            with <span className="text-lime text-glow-lime italic">confidence.</span>
+
+          <h1 className="mt-6 text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-[1.05]">
+            Test your agent service before the marketplace does.
           </h1>
-          <p className="mt-6 text-lg text-muted-foreground max-w-xl leading-relaxed">
-            LangGraph-orchestrated preflight scanner for agent services. Catch HTTP, protocol, and x402 compatibility problems with RAG-grounded fixes and validated probe provenance.
+
+          <p className="mt-5 text-lg text-muted-foreground max-w-xl leading-relaxed">
+            Paste your endpoint URL. Preflight probes its network, protocol, and x402 payment behavior — then hands you a readiness score with evidence for every check and a fix for every failure.
           </p>
-          <div className="mt-8 flex flex-wrap gap-3">
+
+          <div className="mt-8 flex flex-wrap items-center gap-4">
             <Link
               to="/dashboard"
-              className="group inline-flex items-center gap-2 rounded-md bg-lime px-5 py-3 text-sm font-semibold text-lime-foreground hover:opacity-90"
+              className="inline-flex items-center gap-2 rounded-md bg-lime px-6 py-3.5 text-sm font-semibold text-lime-foreground hover:opacity-90 focus-visible:ring-2 focus-visible:ring-lime focus-visible:outline-none transition-all shadow-[0_0_24px_rgba(163,255,79,0.25)]"
             >
               Run Free Preflight
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+              <ArrowRight className="h-4 w-4" />
             </Link>
+
             <Link
               to="/dashboard"
               search={{ demo: "free" }}
-              className="inline-flex items-center gap-2 rounded-md border border-border bg-panel px-5 py-3 text-sm font-semibold hover:border-lime"
+              className="text-sm font-mono text-muted-foreground hover:text-lime underline-offset-4 hover:underline py-2 focus-visible:ring-2 focus-visible:ring-lime focus-visible:outline-none rounded px-2"
             >
-              Test a Demo Endpoint
+              Try a live demo →
             </Link>
           </div>
+
           <div className="mt-10 flex flex-wrap gap-x-6 gap-y-2 text-xs font-mono text-muted-foreground">
-            {["Deterministic checks", "No login required", "No secrets requested", "Free A2MCP utility"].map(t => (
+            {["16 deterministic checks", "Zero secrets stored", "No wallet required"].map((t) => (
               <span key={t} className="flex items-center gap-1.5">
                 <CheckCircle2 className="h-3.5 w-3.5 text-lime" /> {t}
               </span>
@@ -91,7 +91,7 @@ function Hero() {
           </div>
         </div>
 
-        <div className="relative">
+        <div className="relative w-full flex justify-center">
           <HeroScanner />
         </div>
       </div>
@@ -99,209 +99,236 @@ function Hero() {
   );
 }
 
-function MiniAudit() {
-  const navigate = useNavigate();
-  const [url, setUrl] = useState("");
-  const [method, setMethod] = useState<"GET" | "POST">("GET");
+// ---------------------------------------------------------------------------
+// 2. Magic Moment: Real Interactive Strip (Input -> Action -> Outcome)
+// ---------------------------------------------------------------------------
 
-  const submit = (e: React.FormEvent) => {
-    e.preventDefault();
+function MagicMoment() {
+  const [url, setUrl] = useState("https://probe-kit-flax.vercel.app/api/demo/free");
+  const [loading, setLoading] = useState(false);
+  const [report, setReport] = useState<AuditReport | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleAudit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     if (!url.trim()) return;
-    navigate({ to: "/dashboard", search: { url: url.trim(), method } });
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch("/api/audit", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ targetUrl: url.trim(), method: "GET" }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || "Audit request failed");
+      setReport(data as AuditReport);
+    } catch (err: any) {
+      setError(err?.message || "Could not reach endpoint");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <section className="mx-auto max-w-5xl px-4 sm:px-6 -mt-4 md:-mt-12">
-      <form
-        onSubmit={submit}
-        className="rounded-2xl border border-border bg-panel p-4 md:p-5 shadow-xl"
-      >
-        <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-muted-foreground mb-3">
-          <Terminal className="h-3.5 w-3.5 text-lime" /> Live mini audit
-        </div>
-        <div className="grid md:grid-cols-[auto_1fr_auto] gap-2">
-          <div className="inline-flex rounded-md border border-border bg-background p-0.5">
-            {(["GET", "POST"] as const).map(m => (
-              <button
-                key={m}
-                type="button"
-                onClick={() => setMethod(m)}
-                className={cn(
-                  "px-3 py-2 rounded text-xs font-mono font-semibold transition-colors",
-                  method === m ? "bg-lime text-lime-foreground" : "text-muted-foreground hover:text-foreground"
-                )}
-              >{m}</button>
-            ))}
-          </div>
+    <section className="relative mx-auto max-w-7xl px-4 sm:px-6 py-20 md:py-28 border-b border-border/60">
+      <SectionHeader
+        eyebrow="Magic moment"
+        title="From URL to verdict in seconds."
+      />
+
+      <div className="mt-12 max-w-4xl mx-auto rounded-2xl border border-border bg-panel p-6 sm:p-8 shadow-xl">
+        <form onSubmit={handleAudit} className="flex flex-col sm:flex-row gap-3">
           <input
+            type="url"
             value={url}
-            onChange={e => setUrl(e.target.value)}
-            placeholder="https://your-service.example/api"
-            className="min-w-0 rounded-md border border-border bg-background px-3 py-2 font-mono text-sm focus:outline-none focus:border-lime"
+            onChange={(e) => setUrl(e.target.value)}
+            placeholder="https://your-service.example.com/api"
+            className="flex-1 rounded-md border border-border bg-background px-4 py-3 font-mono text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lime"
+            required
           />
           <button
             type="submit"
-            className="inline-flex items-center justify-center gap-2 rounded-md bg-lime px-5 py-2 text-sm font-semibold text-lime-foreground hover:opacity-90"
+            disabled={loading}
+            className="inline-flex items-center justify-center gap-2 rounded-md bg-lime px-6 py-3 text-sm font-semibold text-lime-foreground hover:opacity-90 disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-lime focus-visible:outline-none transition-all"
           >
-            <Zap className="h-4 w-4" /> Run
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Zap className="h-4 w-4" />}
+            {loading ? "Probing…" : "Run preflight"}
           </button>
-        </div>
-        <div className="mt-3 flex flex-wrap gap-2">
-          <span className="text-xs text-muted-foreground mr-1 self-center">Try:</span>
-          {DEMO_URLS.map(d => (
+        </form>
+
+        <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground font-mono">
+          <span>Preset fixtures:</span>
+          {[
+            { name: "Valid Free", path: "/api/demo/free" },
+            { name: "Broken x402", path: "/api/demo/broken-x402" },
+            { name: "Valid x402", path: "/api/demo/valid-x402" },
+          ].map((f) => (
             <button
-              key={d.url}
+              key={f.name}
               type="button"
-              onClick={() => setUrl(new URL(d.url, window.location.origin).toString())}
-              className="text-xs font-mono px-2.5 py-1 rounded-full border border-border hover:border-lime hover:text-lime transition-colors"
+              onClick={() => {
+                const fullUrl = new URL(f.path, window.location.origin).toString();
+                setUrl(fullUrl);
+              }}
+              className="rounded-full border border-border px-2.5 py-1 hover:border-lime hover:text-lime transition-colors focus-visible:ring-1 focus-visible:ring-lime"
             >
-              {d.label}
+              {f.name}
             </button>
           ))}
         </div>
-      </form>
-    </section>
-  );
-}
 
-function Problems() {
-  const items = [
-    {
-      icon: <Network className="h-5 w-5" />,
-      title: "Endpoint mismatch",
-      body: "Your service works locally but is unreachable from the marketplace.",
-      art: <PacketArt kind="fail" />,
-    },
-    {
-      icon: <KeyRound className="h-5 w-5" />,
-      title: "Payment challenge failure",
-      body: "HTTP 402 is returned, but the challenge cannot be decoded or validated.",
-      art: <PacketArt kind="warn" />,
-    },
-    {
-      icon: <Wrench className="h-5 w-5" />,
-      title: "Unclear remediation",
-      body: "You know the endpoint failed, but not which field needs to change.",
-      art: <PacketArt kind="info" />,
-    },
-  ];
-  return (
-    <section className="mx-auto max-w-7xl px-4 sm:px-6 py-24">
-      <SectionHeader eyebrow="Problem" title="One broken header can block a great service." />
-      <div className="mt-12 grid md:grid-cols-3 gap-4">
-        {items.map(it => (
-          <div key={it.title} className="rounded-2xl border border-border bg-panel p-6 hover:border-lime/40 transition-colors">
-            <div className="h-32 rounded-lg border border-border bg-background overflow-hidden mb-5">{it.art}</div>
-            <div className="flex items-center gap-2 text-lime">{it.icon}<span className="text-xs font-mono uppercase tracking-widest">Symptom</span></div>
-            <h3 className="mt-2 text-lg font-semibold">{it.title}</h3>
-            <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{it.body}</p>
+        {error && (
+          <div className="mt-6 rounded-lg border border-coral/40 bg-coral/5 p-4 text-xs font-mono text-coral flex items-center gap-2">
+            <AlertCircle className="h-4 w-4 shrink-0" />
+            <span>{error}</span>
           </div>
-        ))}
+        )}
+
+        {report && (
+          <div className="mt-8 rounded-xl border border-lime/30 bg-background/80 p-6 animate-fade-up">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+              <div className="flex items-center gap-6">
+                <div className="scale-90 sm:scale-100 origin-left">
+                  <ScoreGauge score={report.score} readiness={report.readiness} />
+                </div>
+                <div className="space-y-1">
+                  <div className="text-xs font-mono uppercase tracking-wider text-lime">Readiness Verdict</div>
+                  <div className="text-xl font-bold text-foreground">{report.readiness}</div>
+                  <div className="text-xs font-mono text-muted-foreground">
+                    {report.summary.passed} passed · {report.summary.warnings} warnings · {report.summary.failed} failed
+                  </div>
+                  <div className="text-[11px] font-mono text-cyan pt-1">
+                    Latency: {report.durationMs}ms · {report.endpointType}
+                  </div>
+                </div>
+              </div>
+
+              <Link
+                to="/dashboard"
+                search={{ url: report.targetUrl }}
+                className="inline-flex items-center gap-2 rounded-md border border-border bg-panel px-4 py-2.5 text-xs font-semibold hover:border-lime hover:text-lime transition-colors"
+              >
+                Inspect full evidence in dashboard →
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {/* 3 mini cards: Input -> Action -> Outcome */}
+        <div className="mt-8 pt-8 border-t border-border/80 grid md:grid-cols-3 gap-4 text-center">
+          <div className="p-4 rounded-xl border border-border/60 bg-background/40">
+            <div className="text-xs font-mono text-lime font-bold">01 · INPUT</div>
+            <div className="font-semibold text-sm mt-1">Paste URL</div>
+            <div className="text-xs text-muted-foreground mt-1">Any public HTTPS endpoint.</div>
+          </div>
+          <div className="p-4 rounded-xl border border-border/60 bg-background/40">
+            <div className="text-xs font-mono text-lime font-bold">02 · PRODUCT ACTION</div>
+            <div className="font-semibold text-sm mt-1">16 probes run</div>
+            <div className="text-xs text-muted-foreground mt-1">DNS, TLS, HTTP, x402 & X Layer.</div>
+          </div>
+          <div className="p-4 rounded-xl border border-border/60 bg-background/40">
+            <div className="text-xs font-mono text-lime font-bold">03 · OUTCOME</div>
+            <div className="font-semibold text-sm mt-1">Score + evidence + fixes</div>
+            <div className="text-xs text-muted-foreground mt-1">Concrete remediation for errors.</div>
+          </div>
+        </div>
       </div>
     </section>
   );
 }
 
-function PacketArt({ kind }: { kind: "fail" | "warn" | "info" }) {
-  const color = kind === "fail" ? "var(--coral)" : kind === "warn" ? "var(--amber)" : "var(--cyan)";
-  return (
-    <svg viewBox="0 0 300 130" className="w-full h-full">
-      <defs>
-        <pattern id={`g-${kind}`} width="16" height="16" patternUnits="userSpaceOnUse">
-          <path d="M16 0H0V16" fill="none" stroke="var(--grid)" strokeWidth="0.5" />
-        </pattern>
-      </defs>
-      <rect width="300" height="130" fill={`url(#g-${kind})`} opacity="0.5" />
-      <line x1="20" y1="65" x2="280" y2="65" stroke="var(--border)" strokeDasharray="4 4" />
-      <circle cx="20" cy="65" r="6" fill="var(--lime)" />
-      <circle cx="280" cy="65" r="6" fill={color} />
-      {[60, 110, 160, 210].map((x, i) => (
-        <rect key={i} x={x} y="58" width="14" height="14" fill={i < 2 ? "var(--pass)" : color} opacity={i < 2 ? 1 : 0.85} rx="2">
-          <animate attributeName="opacity" values="0.4;1;0.4" dur="1.8s" repeatCount="indefinite" begin={`${i * 0.2}s`} />
-        </rect>
-      ))}
-      <text x="20" y="95" fontFamily="ui-monospace" fontSize="9" fill="var(--muted-foreground)">client</text>
-      <text x="252" y="95" fontFamily="ui-monospace" fontSize="9" fill={color}>service</text>
-    </svg>
-  );
-}
+// ---------------------------------------------------------------------------
+// 3. How It Works (Exactly 3 steps)
+// ---------------------------------------------------------------------------
 
 function HowItWorks() {
   const steps = [
-    { n: "01", title: "Paste your endpoint", body: "Provide a public HTTPS API and choose GET or POST.", icon: <Globe className="h-5 w-5" /> },
-    { n: "02", title: "Run the protocol scan", body: "Preflight inspects connectivity, HTTP behavior, JSON and x402 structure.", icon: <Radio className="h-5 w-5" /> },
-    { n: "03", title: "Fix and rerun", body: "Receive exact evidence and remediation for every failed check.", icon: <Wrench className="h-5 w-5" /> },
+    {
+      n: "01",
+      title: "Submit your endpoint",
+      body: "Any public HTTPS URL. No account, no wallet.",
+      icon: <Globe className="h-5 w-5" />,
+    },
+    {
+      n: "02",
+      title: "Preflight probes it",
+      body: "Network, protocol, and payment challenges — safely, from the outside, like a marketplace would.",
+      icon: <Radio className="h-5 w-5" />,
+    },
+    {
+      n: "03",
+      title: "Fix what failed",
+      body: "Every failure ships with evidence and a concrete fix.",
+      icon: <Wrench className="h-5 w-5" />,
+    },
   ];
+
   return (
-    <section id="how" className="mx-auto max-w-7xl px-4 sm:px-6 py-24">
+    <section id="how" className="mx-auto max-w-7xl px-4 sm:px-6 py-20 md:py-28 border-b border-border/60">
       <SectionHeader eyebrow="How it works" title="Three steps between draft and marketplace." />
-      <div className="relative mt-14">
-        <div className="hidden md:block absolute top-16 left-0 right-0 h-px bg-gradient-to-r from-transparent via-lime/40 to-transparent" />
-        <div className="hidden md:block absolute top-16 left-0 right-0 pointer-events-none">
-          <div className="h-1.5 w-1.5 rounded-full bg-lime animate-packet" style={{ position: "relative" }} />
-        </div>
-        <div className="grid md:grid-cols-3 gap-4">
-          {steps.map(s => (
-            <div key={s.n} className="rounded-2xl border border-border bg-panel p-6">
+      <div className="mt-12 grid md:grid-cols-3 gap-6">
+        {steps.map((s) => (
+          <div key={s.n} className="rounded-2xl border border-border bg-panel p-6 flex flex-col justify-between">
+            <div>
               <div className="flex items-center justify-between">
                 <span className="grid h-10 w-10 place-items-center rounded-lg bg-lime/15 text-lime border border-lime/30">
                   {s.icon}
                 </span>
                 <span className="font-mono text-xs text-muted-foreground">{s.n}</span>
               </div>
-              <h3 className="mt-4 text-lg font-semibold">{s.title}</h3>
+              <h3 className="mt-5 text-lg font-semibold">{s.title}</h3>
               <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{s.body}</p>
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
+      </div>
 
-        {/* Agentic pipeline LangGraph flow strip */}
-        <div className="mt-8 rounded-2xl border border-border bg-panel/60 p-6 backdrop-blur">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
-            <div>
-              <div className="text-[10px] font-mono uppercase tracking-widest text-lime">LangGraph Engine</div>
-              <h4 className="text-sm font-semibold text-foreground mt-0.5">Deterministic Orchestration with RAG Grounding</h4>
-            </div>
-            <span className="text-xs font-mono text-muted-foreground rounded-full border border-border px-3 py-1 bg-background">
-              AI reasons · Code decides
+      {/* Stack strip */}
+      <div className="mt-10 rounded-xl border border-border bg-panel/60 p-4 flex flex-wrap items-center justify-between gap-3 text-xs font-mono">
+        <span className="text-muted-foreground">Deterministic pipeline engine:</span>
+        <div className="flex flex-wrap items-center gap-2">
+          {["validate_input", "→", "safety_gate", "→", "bounded_fetch", "→", "classify", "→", "remediate"].map((n, idx) => (
+            <span
+              key={idx}
+              className={cn(
+                n === "→" ? "text-muted-foreground" : "px-2 py-0.5 rounded bg-background border border-border text-foreground"
+              )}
+            >
+              {n}
             </span>
-          </div>
-          <div className="mt-4 flex flex-wrap items-center gap-2 text-xs font-mono">
-            {[
-              "validate_input",
-              "→",
-              "safety_gate",
-              "→",
-              "fetch (bounded)",
-              "→",
-              "classify (200 / 402 / error)",
-              "→",
-              "aggregate",
-              "→",
-              "remediate (RAG + LLM)",
-            ].map((node, i) => (
-              <span
-                key={i}
-                className={cn(
-                  node === "→"
-                    ? "text-muted-foreground"
-                    : node.includes("remediate")
-                    ? "rounded border border-lime/40 bg-lime/10 px-2 py-1 text-lime font-semibold"
-                    : "rounded border border-border bg-background px-2 py-1 text-foreground"
-                )}
-              >
-                {node}
-              </span>
-            ))}
-          </div>
+          ))}
         </div>
       </div>
     </section>
   );
 }
 
-function ProtocolCoverage() {
-  const checks = [
+// ---------------------------------------------------------------------------
+// 4. Why It's Better: 3 Compact Proof Cards + Collapsible 16 Checks Table
+// ---------------------------------------------------------------------------
+
+function WhyItIsBetter() {
+  const proofCards = [
+    {
+      title: "Catches what localhost hides",
+      body: "Probes resolve DNS and validate from the public internet, catching unsafe destinations your dev machine never sees.",
+      icon: <Shield className="h-5 w-5" />,
+    },
+    {
+      title: "Speaks x402 fluently",
+      body: "Decodes PAYMENT-REQUIRED challenges and validates every field: version, resource, network, asset, amount, timeout.",
+      icon: <KeyRound className="h-5 w-5" />,
+    },
+    {
+      title: "Every verdict shows its work",
+      body: "Evidence for each check, a manifest of everything probed, and fixes grounded in real failure patterns.",
+      icon: <Sparkles className="h-5 w-5" />,
+    },
+  ];
+
+  const fullChecks = [
     { icon: <Lock />, name: "Public HTTPS", cat: "Connectivity", desc: "TLS-secured public endpoint." },
     { icon: <Shield />, name: "Safe public hostname", cat: "Connectivity", desc: "Blocks private and local ranges." },
     { icon: <Wifi />, name: "Endpoint reachability", cat: "Connectivity", desc: "Network connectivity from a public probe." },
@@ -319,22 +346,98 @@ function ProtocolCoverage() {
     { icon: <Clock />, name: "Timeout", cat: "X Layer", desc: "Sensible request timeout." },
     { icon: <Zap />, name: "Response latency", cat: "Connectivity", desc: "Fast enough for review." },
   ];
+
   return (
-    <section id="checks" className="mx-auto max-w-7xl px-4 sm:px-6 py-24">
-      <SectionHeader eyebrow="Protocol coverage" title="Sixteen deterministic checks. Zero guessing." />
-      <div className="mt-12 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-        {checks.map(c => (
-          <div key={c.name} className="group rounded-xl border border-border bg-panel p-4 hover:border-lime/50 hover:bg-panel-2 transition-colors">
-            <div className="flex items-start justify-between">
-              <span className="grid h-9 w-9 place-items-center rounded-md bg-background border border-border text-lime [&_svg]:h-4 [&_svg]:w-4">
-                {c.icon}
-              </span>
-              <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground rounded border border-border px-1.5 py-0.5">
-                {c.cat}
-              </span>
+    <section id="checks" className="mx-auto max-w-7xl px-4 sm:px-6 py-20 md:py-28 border-b border-border/60">
+      <SectionHeader eyebrow="Why it's better" title="Engineered for agent economy readiness." />
+
+      <div className="mt-12 grid md:grid-cols-3 gap-6">
+        {proofCards.map((c) => (
+          <div key={c.title} className="rounded-2xl border border-border bg-panel p-6">
+            <span className="grid h-10 w-10 place-items-center rounded-lg bg-lime/15 text-lime border border-lime/30">
+              {c.icon}
+            </span>
+            <h3 className="mt-5 text-lg font-semibold">{c.title}</h3>
+            <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{c.body}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-10">
+        <details className="group rounded-2xl border border-border bg-panel/40 p-5">
+          <summary className="cursor-pointer list-none flex items-center justify-between font-mono text-sm font-semibold">
+            <span>View all 16 deterministic checks</span>
+            <span className="text-lime group-open:rotate-180 transition-transform">▼</span>
+          </summary>
+          <div className="mt-6 pt-6 border-t border-border grid grid-cols-2 md:grid-cols-4 gap-3">
+            {fullChecks.map((c) => (
+              <div key={c.name} className="rounded-lg border border-border bg-background p-3">
+                <div className="flex items-center gap-2 text-lime [&_svg]:h-4 [&_svg]:w-4">
+                  {c.icon}
+                  <span className="font-semibold text-xs text-foreground truncate">{c.name}</span>
+                </div>
+                <div className="text-[11px] text-muted-foreground mt-1 truncate">{c.desc}</div>
+              </div>
+            ))}
+          </div>
+        </details>
+      </div>
+    </section>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// 5. Proof / Trust: 3 Demo Fixture Cards + Deterministic Invariant
+// ---------------------------------------------------------------------------
+
+function ProofSection() {
+  const demos = [
+    {
+      title: "Valid Free Endpoint",
+      endpoint: "GET /api/demo/free",
+      desc: "Returns HTTP 200 with structured JSON response without requiring payment.",
+      key: "free",
+    },
+    {
+      title: "Broken x402 Endpoint",
+      endpoint: "GET /api/demo/broken-x402",
+      desc: "Returns HTTP 402 but deliberately omits PAYMENT-REQUIRED header.",
+      key: "broken",
+    },
+    {
+      title: "Valid x402 Challenge",
+      endpoint: "GET /api/demo/valid-x402",
+      desc: "Returns HTTP 402 with full base64 challenge targeting OKX X Layer eip155:196.",
+      key: "valid",
+    },
+  ];
+
+  return (
+    <section className="mx-auto max-w-7xl px-4 sm:px-6 py-20 md:py-28 border-b border-border/60">
+      <SectionHeader eyebrow="Trust & validation" title="Test with deterministic fixtures." />
+      <p className="mt-3 text-center text-sm font-mono text-muted-foreground">
+        Deterministic — the same URL always produces the same report.
+      </p>
+
+      <div className="mt-10 grid md:grid-cols-3 gap-6">
+        {demos.map((d) => (
+          <div key={d.key} className="rounded-2xl border border-border bg-panel p-6 flex flex-col justify-between">
+            <div>
+              <div className="text-xs font-mono uppercase tracking-widest text-lime">Demo Fixture</div>
+              <h3 className="mt-2 text-lg font-semibold">{d.title}</h3>
+              <div className="mt-1 font-mono text-xs text-cyan truncate">{d.endpoint}</div>
+              <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{d.desc}</p>
             </div>
-            <div className="mt-3 font-semibold text-sm">{c.name}</div>
-            <div className="mt-1 text-xs text-muted-foreground leading-relaxed">{c.desc}</div>
+
+            <div className="mt-6 pt-4 border-t border-border">
+              <Link
+                to="/dashboard"
+                search={{ demo: d.key as "free" | "broken" | "valid" }}
+                className="w-full inline-flex items-center justify-center gap-2 rounded-md border border-border bg-background px-4 py-2 text-xs font-semibold hover:border-lime hover:text-lime transition-colors"
+              >
+                Try this demo →
+              </Link>
+            </div>
           </div>
         ))}
       </div>
@@ -342,105 +445,24 @@ function ProtocolCoverage() {
   );
 }
 
-function ExampleReport() {
-  const [fixed, setFixed] = useState(false);
-  return (
-    <section className="mx-auto max-w-7xl px-4 sm:px-6 py-24">
-      <SectionHeader eyebrow="Example audit report" title="Every failure explains itself." />
-      <div className="mt-12 grid lg:grid-cols-[1.1fr_1fr] gap-6 items-start">
-        <div className="rounded-2xl border border-border bg-panel overflow-hidden">
-          <div className="flex items-center justify-between border-b border-border px-5 py-4">
-            <div>
-              <div className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Audit complete</div>
-              <div className="text-lg font-semibold mt-0.5">api.example.com</div>
-            </div>
-            <button
-              onClick={() => setFixed(f => !f)}
-              className="text-xs font-mono px-3 py-1.5 rounded border border-lime/40 bg-lime/10 text-lime hover:bg-lime/20"
-            >
-              {fixed ? "Show broken" : "Simulate fix"}
-            </button>
-          </div>
-          <div className="p-6 grid grid-cols-[auto_1fr] gap-6 items-center">
-            <div className="relative">
-              <svg width="140" height="140" viewBox="0 0 160 160" className="-rotate-90">
-                <circle cx="80" cy="80" r="70" stroke="var(--panel-2)" strokeWidth="10" fill="none" />
-                <circle cx="80" cy="80" r="70" stroke={fixed ? "var(--pass)" : "var(--amber)"} strokeWidth="10" fill="none"
-                  strokeLinecap="round" strokeDasharray={2 * Math.PI * 70}
-                  strokeDashoffset={2 * Math.PI * 70 * (1 - (fixed ? 0.94 : 0.82))}
-                  style={{ transition: "stroke-dashoffset 700ms ease-out, stroke 700ms" }}
-                />
-              </svg>
-              <div className="absolute inset-0 grid place-items-center text-center">
-                <div>
-                  <div className="font-mono text-4xl font-bold tabular-nums" style={{ color: fixed ? "var(--pass)" : "var(--amber)" }}>
-                    {fixed ? 94 : 82}
-                  </div>
-                  <div className="text-[10px] uppercase tracking-widest text-muted-foreground">/ 100</div>
-                </div>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <div className="text-sm text-muted-foreground">
-                {fixed ? "Protocol ready" : "Almost ready"}
-              </div>
-              <div className="flex gap-2 flex-wrap">
-                <Chip color="pass">{fixed ? 11 : 8} passed</Chip>
-                <Chip color="amber">{fixed ? 0 : 2} warnings</Chip>
-                <Chip color="coral">{fixed ? 0 : 1} failed</Chip>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className={cn(
-          "rounded-2xl border p-5 transition-colors",
-          fixed ? "border-pass/40 bg-pass/5" : "border-coral/40 bg-coral/5"
-        )}>
-          <div className="flex items-center gap-2">
-            {fixed ? <CheckCircle2 className="h-5 w-5 text-pass" /> : <XCircle className="h-5 w-5 text-coral" />}
-            <span className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Check</span>
-          </div>
-          <h3 className="mt-2 font-semibold text-lg">PAYMENT-REQUIRED header</h3>
-          <p className="mt-2 text-sm text-muted-foreground">
-            {fixed
-              ? "Endpoint returned HTTP 402 with a valid base64 x402 v2 challenge in the PAYMENT-REQUIRED header."
-              : "The endpoint returned HTTP 402, but the payment challenge was not present in the expected header."}
-          </p>
-          {!fixed && (
-            <div className="mt-4 flex items-start gap-2 rounded-md border border-lime/30 bg-lime/5 p-3">
-              <ArrowRight className="h-4 w-4 text-lime mt-0.5" />
-              <div>
-                <div className="text-xs uppercase font-mono tracking-widest text-lime">Recommended fix</div>
-                <div className="mt-1 text-sm">Base64-encode the x402 v2 challenge and return it in the PAYMENT-REQUIRED response header.</div>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Chip({ color, children }: { color: "pass" | "amber" | "coral"; children: React.ReactNode }) {
-  const map = {
-    pass: "bg-pass/10 border-pass/30 text-pass",
-    amber: "bg-amber/10 border-amber/30 text-amber",
-    coral: "bg-coral/10 border-coral/30 text-coral",
-  };
-  return <span className={cn("inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-mono", map[color])}>{children}</span>;
-}
+// ---------------------------------------------------------------------------
+// 6. Security Section (Condensed to 6 bullets max)
+// ---------------------------------------------------------------------------
 
 function SecuritySection() {
   const items = [
-    "HTTPS-only requests", "Private-network blocking", "Redirect validation",
-    "Strict timeout", "Response-size limits", "No secret forwarding",
-    "No remote HTML execution", "No authentication required",
+    "HTTPS-only requests with valid TLS certificates",
+    "Private, local, link-local and cloud metadata IP blocking",
+    "Pre-flight DoH resolution to eliminate SSRF attack vectors",
+    "Strict 5-second execution timeout on every network hop",
+    "256 KB response body cap protecting against memory exhaustion",
+    "Zero secrets, keys, or wallets stored or requested",
   ];
+
   return (
-    <section id="security" className="mx-auto max-w-7xl px-4 sm:px-6 py-24">
+    <section id="security" className="mx-auto max-w-7xl px-4 sm:px-6 py-20 md:py-28 border-b border-border/60">
       <div className="rounded-3xl border border-border bg-panel/60 p-8 md:p-12">
-        <div className="grid md:grid-cols-[1fr_1.2fr] gap-10 items-start">
+        <div className="grid md:grid-cols-[1fr_1.2fr] gap-10 items-center">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-cyan/30 bg-cyan/10 px-3 py-1 text-xs font-mono uppercase tracking-widest text-cyan">
               <Shield className="h-3.5 w-3.5" /> Security
@@ -448,15 +470,16 @@ function SecuritySection() {
             <h2 className="mt-4 text-3xl md:text-4xl font-bold tracking-tight">
               A scanner should never become an attack surface.
             </h2>
-            <p className="mt-4 text-muted-foreground max-w-md">
-              Preflight runs deterministic, read-only checks with strict egress hygiene. Nothing is stored, nothing is executed.
+            <p className="mt-4 text-muted-foreground text-sm leading-relaxed">
+              Preflight runs deterministic, read-only checks with strict egress hygiene. Untrusted URLs cannot traverse internal networks.
             </p>
           </div>
-          <ul className="grid sm:grid-cols-2 gap-2">
-            {items.map(t => (
-              <li key={t} className="flex items-center gap-3 rounded-lg border border-border bg-background px-4 py-3">
-                <CheckCircle2 className="h-4 w-4 text-lime shrink-0" />
-                <span className="text-sm">{t}</span>
+
+          <ul className="grid sm:grid-cols-2 gap-3">
+            {items.map((t) => (
+              <li key={t} className="flex items-start gap-2.5 rounded-lg border border-border bg-background p-3 text-xs">
+                <CheckCircle2 className="h-4 w-4 text-lime shrink-0 mt-0.5" />
+                <span className="leading-relaxed">{t}</span>
               </li>
             ))}
           </ul>
@@ -466,82 +489,79 @@ function SecuritySection() {
   );
 }
 
-function BuiltForAgents() {
-  const uses = [
-    { icon: <Database />, label: "Data APIs" },
-    { icon: <Cpu />, label: "Software utilities" },
-    { icon: <Search />, label: "Research tools" },
-    { icon: <Shield />, label: "Validation services" },
-    { icon: <KeyRound />, label: "Paid x402 endpoints" },
-    { icon: <Radio />, label: "Free A2MCP endpoints" },
-  ];
-  return (
-    <section className="mx-auto max-w-7xl px-4 sm:px-6 py-24">
-      <div className="grid lg:grid-cols-[1fr_1.1fr] gap-10 items-center">
-        <div>
-          <SectionHeader eyebrow="Built for agent services" title="Standardized. Machine-callable. Predictable." align="left" />
-          <p className="mt-6 text-muted-foreground max-w-lg">
-            Preflight is designed for standardized machine-callable services that take parameters and return clear results.
-          </p>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          {uses.map(u => (
-            <div key={u.label} className="rounded-xl border border-border bg-panel p-4 flex items-center gap-3">
-              <span className="grid h-9 w-9 place-items-center rounded-md bg-background border border-border text-lime [&_svg]:h-4 [&_svg]:w-4">
-                {u.icon}
-              </span>
-              <span className="text-sm font-medium">{u.label}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
+// ---------------------------------------------------------------------------
+// 7. FAQ (4-5 honest items)
+// ---------------------------------------------------------------------------
 
 function Faq() {
   const faqs = [
-    { q: "Is Preflight an official OKX certification?", a: "No. Preflight is an independent technical preflight tool. Passing its checks does not guarantee marketplace approval." },
-    { q: "Does Preflight make payments?", a: "The MVP validates x402 challenge structure but does not submit or settle payments." },
-    { q: "Does it support free endpoints?", a: "Yes. Free endpoints that return their result directly with HTTP 200 can be audited." },
-    { q: "Do I need an account?", a: "No account is required for the MVP." },
-    { q: "Are my secrets required?", a: "No. Do not submit API keys, authorization headers or payment credentials." },
+    {
+      q: "Does passing Preflight guarantee marketplace approval?",
+      a: "No. Preflight is an independent technical validation tool. Passing its checks confirms your endpoint complies with networking, protocol, and x402 standards, but does not constitute official endorsement or guarantee listing.",
+    },
+    {
+      q: "Does Preflight make or settle payments on-chain?",
+      a: "No. Preflight inspects and decodes the structural validity of HTTP 402 PAYMENT-REQUIRED challenges. It never signs transactions, touches a private key, or submits settlement funds.",
+    },
+    {
+      q: "Can I test free endpoints?",
+      a: "Yes. Endpoints that directly return HTTP 200 with structured JSON payloads are evaluated as Free A2MCP services.",
+    },
+    {
+      q: "Do I need an account or API key?",
+      a: "No account, wallet, or payment is required to run preflight audits.",
+    },
   ];
+
   return (
-    <section className="mx-auto max-w-4xl px-4 sm:px-6 py-24">
+    <section className="mx-auto max-w-4xl px-4 sm:px-6 py-20 md:py-28 border-b border-border/60">
       <SectionHeader eyebrow="FAQ" title="Straight answers." />
       <div className="mt-12 divide-y divide-border border-y border-border">
-        {faqs.map(f => (
+        {faqs.map((f) => (
           <details key={f.q} className="group py-5">
             <summary className="cursor-pointer list-none flex items-center justify-between gap-4">
-              <span className="font-semibold">{f.q}</span>
-              <span className="grid h-7 w-7 place-items-center rounded-full border border-border group-open:bg-lime group-open:text-lime-foreground group-open:border-lime transition-colors">+</span>
+              <span className="font-semibold text-sm sm:text-base">{f.q}</span>
+              <span className="grid h-7 w-7 place-items-center rounded-full border border-border group-open:bg-lime group-open:text-lime-foreground group-open:border-lime transition-colors">
+                +
+              </span>
             </summary>
             <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{f.a}</p>
           </details>
         ))}
       </div>
-      <div className="mt-8"><DisclaimerBanner /></div>
+      <div className="mt-8">
+        <DisclaimerBanner />
+      </div>
     </section>
   );
 }
 
+// ---------------------------------------------------------------------------
+// 8. Final CTA (One clear promise, one button)
+// ---------------------------------------------------------------------------
+
 function FinalCta() {
   return (
-    <section className="relative mx-auto max-w-7xl px-4 sm:px-6 py-24">
+    <section className="relative mx-auto max-w-7xl px-4 sm:px-6 py-20 md:py-28">
       <div className="relative overflow-hidden rounded-3xl border border-lime/30 bg-gradient-to-br from-panel to-background p-10 md:p-16 text-center">
-        <div className="absolute inset-0 grid-bg opacity-40 [mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)]" />
+        <div className="absolute inset-0 grid-bg opacity-35 [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]" />
         <div className="relative">
-          <h2 className="text-4xl md:text-6xl font-bold tracking-tight">
-            Find the failure <span className="text-lime text-glow-lime">before review does.</span>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight">
+            Don't let a broken header block a great service.
           </h2>
+          <p className="mt-4 text-base text-muted-foreground max-w-xl mx-auto">
+            Test your agent service before the marketplace does.
+          </p>
           <div className="mt-8 flex justify-center">
-            <Link to="/dashboard" className="inline-flex items-center gap-2 rounded-md bg-lime px-6 py-3.5 text-sm font-semibold text-lime-foreground hover:opacity-90 animate-pulse-ring">
+            <Link
+              to="/dashboard"
+              className="inline-flex items-center gap-2 rounded-md bg-lime px-8 py-4 text-sm font-semibold text-lime-foreground hover:opacity-90 focus-visible:ring-2 focus-visible:ring-lime focus-visible:outline-none transition-all shadow-[0_0_24px_rgba(163,255,79,0.3)] animate-pulse-ring"
+            >
               Run Free Preflight
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
-          <p className="mt-4 text-sm text-muted-foreground font-mono">No login. No wallet. No secrets.</p>
+          <p className="mt-4 text-xs font-mono text-muted-foreground">No login. No wallet. No secrets.</p>
         </div>
       </div>
     </section>
