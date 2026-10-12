@@ -1,89 +1,102 @@
-# ASP ProbeKit
+# Preflight
 
-### Test your ASP before the marketplace does.
+> **Test your agent service before the marketplace does.**
 
-[![Live](https://img.shields.io/badge/Live-probe--kit--flax.vercel.app-B7FF3C?style=for-the-badge)](https://probe-kit-flax.vercel.app)
-[![OKX.AI](https://img.shields.io/badge/OKX.AI-ASP%20%239642-111111?style=for-the-badge)](https://www.okx.ai)
-[![X Layer](https://img.shields.io/badge/X%20Layer-eip155%3A196-ffffff?style=for-the-badge)](https://web3.okx.com/xlayer)
-[![TypeScript](https://img.shields.io/badge/TypeScript-Ready-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+**Preflight is the preflight check for the agent economy** — it takes any public
+HTTPS endpoint, runs it through a LangGraph-orchestrated battery of deterministic
+network, protocol, and payment-challenge probes, and returns a readiness score with
+evidence for every check and RAG-grounded fixes for every failure.
 
-**ASP ProbeKit is a production-ready preflight scanner for free and x402-powered A2MCP endpoints.** It catches protocol, networking, and payment-challenge failures before an Agent Service Provider reaches marketplace review - and turns every failure into an actionable fix.
+[![Live](https://img.shields.io/badge/Live-preflight-flax.vercel.app-B7FF3C?style=for-the-badge)](https://probe-kit-flax.vercel.app)
+[![TanStack](https://img.shields.io/badge/TanStack-Start-FF4154?style=flat-square)](https://tanstack.com/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
+[![LangGraph](https://img.shields.io/badge/LangGraph-121212?style=flat-square)](https://www.langchain.com/langgraph)
 
-[Launch ProbeKit](https://probe-kit-flax.vercel.app) | [Run an audit](https://probe-kit-flax.vercel.app/dashboard) | [Check service health](https://probe-kit-flax.vercel.app/api/health) | [View the API](#api-reference)
+[Launch Preflight](https://probe-kit-flax.vercel.app) · [Run an audit](https://probe-kit-flax.vercel.app/dashboard) · [How it works](#how-it-works) · [API](#api-reference)
 
-![ASP ProbeKit product preview](./assets.png)
+---
 
 ## The problem
 
-An endpoint can work locally and still fail as an agent service: the URL may resolve to an unsafe destination, return the wrong status, omit a payment header, encode an invalid x402 challenge, or target the wrong network.
+An endpoint can work locally and still fail as an agent service: the URL resolves to
+an unsafe destination, returns the wrong status, omits a payment header, encodes an
+invalid x402 challenge, or targets the wrong network. Marketplace review then becomes
+a slow, uncertain loop of submit → reject → guess.
 
-ProbeKit converts that uncertain review cycle into a repeatable preflight:
+Preflight converts that loop into a repeatable preflight:
 
 1. Submit a public HTTPS endpoint.
-2. ProbeKit safely inspects its network and protocol behavior.
-3. Receive a readiness score, evidence for every check, and concrete remediation.
+2. Preflight safely probes its network and protocol behavior through a validated tool harness.
+3. Receive a readiness score, evidence for every check, a manifest of everything probed — and grounded fixes for what failed.
 
-## What ProbeKit validates
+## What Preflight validates
 
 | Area | Validation |
-| --- | --- |
-| Connectivity | URL parsing, HTTPS enforcement, public DNS resolution, reachability and latency |
-| HTTP behavior | Status code, redirects, response size and JSON structure |
+|---|---|
+| Connectivity | URL parsing, HTTPS enforcement, public DNS resolution, reachability, latency |
+| HTTP behavior | Status codes, redirects, response size, JSON structure |
 | Free A2MCP | Direct HTTP `200` service responses |
-| x402 v2 | HTTP `402`, `PAYMENT-REQUIRED`, Base64 decoding and challenge shape |
-| X Layer | CAIP-2 network identifier `eip155:196` and payment-option fields |
-| Security | Private-network blocking, redirect revalidation, timeouts and size limits |
-| Developer experience | Deterministic score, evidence, warnings, failures and recommended fixes |
+| x402 v2 | HTTP `402`, `PAYMENT-REQUIRED`, Base64 decoding, challenge shape |
+| X Layer | CAIP-2 network identifier `eip155:196`, payment-option fields |
+| Security | Private-network blocking, redirect revalidation, timeouts, size limits |
+
+## How it works
+
+```
+Developer ──► POST /api/audit ──► LangGraph pipeline ──► Readiness report
+                                        │
+                    ┌───────────────────┼───────────────────┐
+                    ▼                   ▼                   ▼
+              validate_input      safety_gate            fetch
+              (Zod schema)        (DNS + SSRF block)     (bounded, 5s)
+                                        │
+                                   classify (200 / 402 / other)
+                                   ╱        │         ╲
+                          free_checks  x402_checks  http_failure
+                                   ╲        │         ╱
+                                   aggregate (deterministic score)
+                                        │
+                                   remediate (RAG + LLM, cited fixes)
+                                        │
+                              Score + evidence + fixes + probe manifest
+```
+
+**The design principle:** the graph orchestrates deterministic tools; the LLM is used
+in exactly one node — rewriting retrieved fixes into concrete remediation steps.
+AI reasons about wording. Code owns every verdict.
+
+## Why it's interesting (the AI engineering)
+
+- **LangGraph over deterministic tools.** The audit pipeline is a `StateGraph`:
+  validation → safety gate → fetch → classify → branch → aggregate → remediate.
+  Each node records timing into a probe manifest, so every report proves what was
+  checked, in what order, and how long it took.
+- **RAG-grounded remediation.** Failed checks retrieve similar past failures from an
+  embedded knowledge base of x402/A2MCP misconfigurations — fixes cite their sources
+  instead of being templated guesses.
+- **Validated tool harness.** Every probe is a JSON-schema-validated tool with
+  declared timeouts and byte budgets. Budget breaches are killed and logged, never silent.
+- **Graceful degradation.** If the LLM or embeddings are unavailable, remediation
+  falls back to built-in fixes — the audit itself never fails.
+- **Eval-gated.** A golden suite over demo fixtures and adversarial cases
+  (private-IP targets, malformed challenges) runs in CI. A broken check fails the build.
+- **Security as architecture, not a feature list.** HTTPS-only, DNS pre-resolution,
+  private/loopback/link-local/metadata blocking, redirect revalidation, no forwarded
+  credentials, no remote HTML execution. Every submitted target is treated as untrusted.
 
 ## Live demonstration
 
-The dashboard includes deterministic fixtures so the complete audit workflow can be evaluated without a wallet or real payment:
+The dashboard ships deterministic fixtures — evaluate the full workflow with no
+wallet and no real payment:
 
 | Scenario | Endpoint | Expected result |
-| --- | --- | --- |
+|---|---|---|
 | Valid free service | `GET /api/demo/free` | HTTP `200` with structured JSON |
 | Broken x402 service | `GET /api/demo/broken-x402` | HTTP `402` with a missing challenge |
 | Valid x402 structure | `GET /api/demo/valid-x402` | Structurally valid x402 v2 challenge |
 
-The valid x402 fixture validates protocol structure only. It does not request, sign, submit, or settle a payment.
-
-## Architecture
-
-```mermaid
-flowchart LR
-    U["Developer or agent"] --> D["ProbeKit dashboard"]
-    D --> A["POST /api/audit"]
-    A --> V["Validate request and HTTPS URL"]
-    V --> S["SSRF and DNS safety gate"]
-    S --> F["Bounded endpoint fetch"]
-    F --> H{"HTTP response"}
-    H -->|"200"| M["Free A2MCP checks"]
-    H -->|"402"| X["x402 v2 and X Layer checks"]
-    H -->|"Other"| E["HTTP failure evidence"]
-    M --> R["Deterministic readiness report"]
-    X --> R
-    E --> R
-    R --> O["Score, evidence and recommended fixes"]
-```
-
-### Audit lifecycle
-
-```mermaid
-sequenceDiagram
-    participant C as Caller
-    participant P as ProbeKit
-    participant D as DNS / safety gate
-    participant T as Target endpoint
-
-    C->>P: POST /api/audit
-    P->>P: Validate targetUrl, method and requestBody
-    P->>D: Resolve and verify public destination
-    D-->>P: Approved public addresses
-    P->>T: Bounded GET or POST request
-    T-->>P: HTTP 200, 402 or failure
-    P->>P: Run HTTP, x402 and X Layer checks
-    P-->>C: Structured readiness report
-```
+The valid x402 fixture validates protocol structure only. It never requests, signs,
+submits, or settles a payment.
 
 ## API reference
 
@@ -101,24 +114,15 @@ Content-Type: application/json
 }
 ```
 
-`method` accepts `GET` or `POST` and defaults to `GET`. `requestBody` is an optional JSON object used only for POST audits.
-
-Try it with cURL:
-
 ```bash
 curl --request POST "https://probe-kit-flax.vercel.app/api/audit" \
   --header "Content-Type: application/json" \
   --data '{"targetUrl":"https://probe-kit-flax.vercel.app/api/demo/free","method":"GET"}'
 ```
 
-Every audit returns:
-
-- Endpoint type and HTTP status
-- Readiness label and score
-- Response time
-- Passed checks, warnings and failures
-- Expected and actual evidence
-- Recommended fixes
+Every audit returns: endpoint type and HTTP status · readiness label and score ·
+response time · passed/warned/failed checks with evidence · recommended fixes with
+sources · probe manifest.
 
 ### Health check
 
@@ -126,77 +130,47 @@ Every audit returns:
 GET /api/health
 ```
 
-```json
-{
-  "status": "ok",
-  "service": "ASP ProbeKit",
-  "version": "1.0.0",
-  "timestamp": "2026-07-27T10:00:00.000Z"
-}
-```
-
-## Security by design
-
-ProbeKit treats every submitted target as untrusted.
-
-- Accepts HTTPS destinations only
-- Resolves DNS before outbound requests
-- Rejects private, loopback, link-local, reserved and metadata destinations
-- Revalidates every redirect destination
-- Allows at most three redirects
-- Enforces a five-second request timeout
-- Limits endpoint responses to 256 KB
-- Limits audit requests to 32 KB
-- Never forwards user-supplied authorization headers or cookies
-- Never executes remote HTML
-- Avoids returning secrets or full unbounded response bodies
-
-ProbeKit validates payment-challenge structure; it does not pay challenges, sign authorizations, replay paid requests, or verify settlement.
-
 ## Run locally
 
-### Requirements
-
-- Node.js 20+
-- Bun 1.3+
-- Git
+Requirements: Node.js 20+, Bun 1.3+, Git. Optional: an OpenRouter-compatible API key
+for LLM-grounded remediation (audits work fully without it).
 
 ```bash
-git clone https://github.com/ShivamSoni20/ProbeKit.git
-cd ProbeKit
+git clone https://github.com/ShivamSoni20/Preflight.git
+cd Preflight
 bun install --frozen-lockfile
+cp .env.example .env   # add AI_API_KEY to enable LLM remediation
+bun run rag:ingest     # build the remediation knowledge base vectors
 bun run dev
 ```
 
-Create the production build:
-
 ```bash
-bun run build
+bun run eval    # golden eval suite
+bun run build   # production build (Nitro → .output/)
 ```
-
-Nitro generates the deployable server and public assets in `.output/`.
 
 ## Technology
 
-`TanStack Start` | `React 19` | `TypeScript` | `Tailwind CSS` | `Zod` | `Radix UI` | `Nitro`
+`TanStack Start` · `React 19` · `TypeScript` · `LangGraph` · `LangChain` ·
+`OpenRouter` · `Tailwind CSS` · `Zod` · `Radix UI` · `Nitro` · `Bun`
 
-## OKX.AI Genesis Hackathon
+## Roadmap
 
-ProbeKit was built for the **Software Services / Software Utility** category.
-
-| Field | Value |
-| --- | --- |
-| ASP | ASP ProbeKit |
-| OKX.AI identity | `#9642` |
-| Registered service | Endpoint Readiness Audit |
-| Service type | Free A2MCP API |
-| Production endpoint | `https://probe-kit-flax.vercel.app/api/audit` |
-| Core value | Find endpoint-readiness failures before marketplace listing |
+- [x] Deterministic audit engine with SSRF-safe probing
+- [x] LangGraph-orchestrated pipeline with probe manifest
+- [x] RAG-grounded remediation with cited fixes
+- [x] Validated tool harness with budgets and dry-run
+- [x] Eval harness gating CI
+- [ ] Scheduled re-audits with drift alerts
+- [ ] MCP server exposing `preflight.audit` as a tool for coding agents
 
 ## Project status
 
-ProbeKit is deployed and operational. The current release focuses on deterministic endpoint preflight and structural x402 validation. Passing ProbeKit's independent checks improves readiness but does not guarantee OKX.AI marketplace approval.
+Preflight is deployed and operational. It was originally built as ProbeKit for the
+OKX.AI Genesis hackathon (Software Services / Utility). Passing Preflight's
+independent checks improves readiness but does not guarantee marketplace approval.
 
 ## License
 
-No open-source license has been selected. All rights are reserved unless a license is added to this repository.
+No open-source license has been selected yet. All rights are reserved unless a
+license is added to this repository.

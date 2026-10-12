@@ -5,8 +5,8 @@ export const Route = createFileRoute("/api/health")({
     handlers: {
       GET: async () => Response.json({
         status: "ok",
-        service: "ASP ProbeKit",
-        version: "1.0.0",
+        service: "Preflight",
+        version: "2.0.0",
         timestamp: new Date().toISOString(),
       }, { headers: { "cache-control": "no-store" } }),
     },

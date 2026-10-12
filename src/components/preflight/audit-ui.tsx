@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { CheckCircle2, AlertTriangle, XCircle, Loader2, Copy, Download, ArrowRight, ChevronDown } from "lucide-react";
-import type { AuditCheck, AuditReport, CheckStatus } from "@/lib/probekit-types";
+import type { AuditCheck, AuditReport, CheckStatus } from "@/lib/preflight-types";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -162,6 +162,93 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
+export function ManifestViewer({ manifest }: { manifest: NonNullable<AuditReport["probeManifest"]> }) {
+  const [open, setOpen] = useState(false);
+  if (!manifest || manifest.length === 0) return null;
+
+  return (
+    <div className="rounded-xl border border-border bg-panel overflow-hidden">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="w-full flex items-center justify-between p-4 text-left hover:bg-panel-2 transition-colors"
+      >
+        <div className="flex items-center gap-2.5">
+          <span className="h-2 w-2 rounded-full bg-cyan animate-blink" />
+          <span className="font-semibold text-sm">Probe Manifest ({manifest.length} operations)</span>
+          <span className="text-[10px] font-mono uppercase tracking-wider rounded border border-border px-1.5 py-0.5 text-muted-foreground">
+            Audit Provenance
+          </span>
+        </div>
+        <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform", open && "rotate-180")} />
+      </button>
+
+      {open && (
+        <div className="border-t border-border divide-y divide-border/60 font-mono text-xs">
+          {manifest.map((m, idx) => (
+            <div key={`${m.tool}-${idx}`} className="p-3.5 flex flex-wrap items-center justify-between gap-2 bg-background/50">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <span className="text-muted-foreground">#{idx + 1}</span>
+                <span className="font-bold text-foreground">{m.tool}</span>
+                <span
+                  className={cn(
+                    "text-[10px] px-1.5 py-0.5 rounded uppercase tracking-wider",
+                    m.status === "ok" || !m.status ? "bg-pass/10 text-pass border border-pass/30" : "bg-coral/10 text-coral border border-coral/30"
+                  )}
+                >
+                  {m.status || "ok"}
+                </span>
+              </div>
+              <div className="flex items-center gap-3 text-muted-foreground text-[11px]">
+                <span>{new Date(m.startedAt).toLocaleTimeString()}</span>
+                <span className="text-cyan font-semibold">{m.durationMs}ms</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function RecommendedFixes({ fixes }: { fixes: NonNullable<AuditReport["fixes"]> }) {
+  if (!fixes || fixes.length === 0) return null;
+
+  return (
+    <div className="rounded-xl border border-lime/40 bg-lime/5 p-4 space-y-3">
+      <div className="flex items-center gap-2">
+        <ArrowRight className="h-4 w-4 text-lime" />
+        <span className="text-xs font-mono uppercase tracking-widest text-lime font-bold">
+          Recommended Fixes ({fixes.length})
+        </span>
+      </div>
+
+      <div className="space-y-3">
+        {fixes.map((f, idx) => (
+          <div key={`${f.checkId}-${idx}`} className="rounded-lg border border-border bg-panel p-3 text-sm space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="font-mono text-xs font-bold text-cyan">{f.checkId}</span>
+              <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground bg-panel-2 px-1.5 py-0.5 rounded">
+                Confidence: {f.confidence}
+              </span>
+            </div>
+            <p className="text-foreground leading-relaxed font-mono text-xs">{f.fix}</p>
+            {f.sources && f.sources.length > 0 && (
+              <div className="pt-1 flex flex-wrap gap-1.5 items-center">
+                <span className="text-[10px] uppercase font-mono text-muted-foreground">Sources:</span>
+                {f.sources.map((s, sIdx) => (
+                  <span key={sIdx} className="text-[10px] font-mono text-muted-foreground bg-background border border-border px-1.5 py-0.5 rounded">
+                    {s}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function JsonViewer({ data }: { data: unknown }) {
   const text = useMemo(() => JSON.stringify(data, null, 2), [data]);
   return (
@@ -181,7 +268,7 @@ export function JsonViewer({ data }: { data: unknown }) {
               const blob = new Blob([text], { type: "application/json" });
               const url = URL.createObjectURL(blob);
               const a = document.createElement("a");
-              a.href = url; a.download = "probekit-report.json";
+              a.href = url; a.download = "preflight-report.json";
               a.click(); URL.revokeObjectURL(url);
               toast.success("Downloaded");
             }}

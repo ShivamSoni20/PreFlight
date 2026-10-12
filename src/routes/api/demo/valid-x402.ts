@@ -8,7 +8,7 @@ export const Route = createFileRoute("/api/demo/valid-x402")({
           x402Version: 2,
           resource: {
             url: new URL("/api/demo/valid-x402", request.url).toString(),
-            description: "Structurally valid ProbeKit x402 demonstration",
+            description: "Structurally valid Preflight x402 demonstration",
             mimeType: "application/json",
           },
           accepts: [{

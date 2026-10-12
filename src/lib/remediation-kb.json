@@ -1,0 +1,152 @@
+[
+  {
+    "signature": "missing-payment-required",
+    "failurePattern": "HTTP 402 response is missing PAYMENT-REQUIRED",
+    "fix": "Set the HTTP header `PAYMENT-REQUIRED: <base64-json>` with a valid x402 v2 payment challenge payload.",
+    "source": "x402 Spec v2.0 - Section 3 (Payment Challenge Headers)"
+  },
+  {
+    "signature": "b64-decode-failure",
+    "failurePattern": "Challenge is not valid base64",
+    "fix": "Encode the x402 challenge object into standard Base64 or Base64URL without whitespace: `Buffer.from(JSON.stringify(challenge)).toString('base64')`.",
+    "source": "x402 Spec v2.0 - Section 3.2 (Encoding Standards)"
+  },
+  {
+    "signature": "invalid-challenge-json",
+    "failurePattern": "Decoded challenge is not valid JSON",
+    "fix": "Ensure the payload decoded from PAYMENT-REQUIRED parses as valid JSON: `JSON.parse(decoded)`.",
+    "source": "x402 Spec v2.0 - Section 4 (Challenge Object Schema)"
+  },
+  {
+    "signature": "wrong-x402-version",
+    "failurePattern": "Challenge must declare x402Version 2",
+    "fix": "Specify `\"x402Version\": 2` at the root of the challenge JSON object.",
+    "source": "x402 Protocol Specification - Migration Guide v1 to v2"
+  },
+  {
+    "signature": "incomplete-resource-metadata",
+    "failurePattern": "Resource metadata is incomplete",
+    "fix": "Define `resource: { url: 'https://...', description: '...', mimeType: 'application/json' }` containing valid HTTPS endpoint details.",
+    "source": "A2MCP Agent Discovery Standard - Resource Definition"
+  },
+  {
+    "signature": "resource-url-mismatch",
+    "failurePattern": "Resource URL does not match the audited host",
+    "fix": "Ensure `resource.url` matches the publicly reachable origin/hostname of the audited agent endpoint.",
+    "source": "A2MCP Security Architecture - Origin Matching Invariants"
+  },
+  {
+    "signature": "missing-accepts-array",
+    "failurePattern": "accepts must be a non-empty array",
+    "fix": "Supply at least one payment option in the `accepts` array declaring scheme, network, asset, and payTo address.",
+    "source": "x402 Spec v2.0 - Payment Options Array"
+  },
+  {
+    "signature": "wrong-network-id",
+    "failurePattern": "Payment option does not target X Layer",
+    "fix": "Specify `\"network\": \"eip155:196\"` to target the OKX X Layer mainnet.",
+    "source": "X Layer Developer Documentation - CAIP-2 Network Identifiers"
+  },
+  {
+    "signature": "malformed-asset-address",
+    "failurePattern": "Asset address is missing or malformed",
+    "fix": "Provide `asset` as a 42-character 0x-prefixed hex ERC-20 contract address (e.g., `0x...` with 40 hex chars).",
+    "source": "ERC-20 Token Specification & EVM Address Validation"
+  },
+  {
+    "signature": "malformed-recipient-address",
+    "failurePattern": "Recipient address is missing or malformed",
+    "fix": "Provide `payTo` as a valid 42-character 0x-prefixed hex recipient address.",
+    "source": "EVM Address Standards & Payment Settlement Rules"
+  },
+  {
+    "signature": "unexpected-http-status",
+    "failurePattern": "Unexpected HTTP status",
+    "fix": "Configure the agent route to return HTTP 200 with JSON for free services, or HTTP 402 with PAYMENT-REQUIRED for paid tiers.",
+    "source": "RFC 9110 HTTP Semantics - Status Codes"
+  },
+  {
+    "signature": "non-json-content-type",
+    "failurePattern": "Response omitted Content-Type or not application/json",
+    "fix": "Return `Content-Type: application/json` in the response headers.",
+    "source": "A2MCP Transport Protocol - MIME Typing"
+  },
+  {
+    "signature": "invalid-json-body",
+    "failurePattern": "Response body is not valid JSON",
+    "fix": "Serialize response body strictly via JSON format (`JSON.stringify()`) avoiding raw text or trailing commas.",
+    "source": "RFC 8259 The JavaScript Object Notation (JSON) Data Interchange Format"
+  },
+  {
+    "signature": "high-latency",
+    "failurePattern": "Reduce endpoint latency; under 1.5 seconds is preferred",
+    "fix": "Optimize cold starts, database queries, and upstream LLM calls so latency stays well below 1500ms.",
+    "source": "Preflight Agent Reliability Best Practices"
+  },
+  {
+    "signature": "unnecessary-redirects",
+    "failurePattern": "Followed validated redirect(s)",
+    "fix": "Configure the direct canonical HTTPS URL avoiding 301/302/307/308 redirect hops.",
+    "source": "Preflight Transport Optimization Guidelines"
+  },
+  {
+    "signature": "oversized-response",
+    "failurePattern": "Response exceeded the 256 KB limit",
+    "fix": "Trim payloads, paginate large item lists, or compress bulky records to remain below the 256 KB limit.",
+    "source": "Agent Service Provider Bounded Buffer Constraints"
+  },
+  {
+    "signature": "private-ip-blocked",
+    "failurePattern": "Target hostname resolves to a private, local, or reserved address",
+    "fix": "Deploy your service on a public internet IP; private ranges (RFC 1918, RFC 3927, loopback) are rejected for SSRF safety.",
+    "source": "OWASP SSRF Prevention Cheat Sheet"
+  },
+  {
+    "signature": "non-https-scheme",
+    "failurePattern": "Scheme is not HTTPS",
+    "fix": "Serve your service through HTTPS with a valid TLS certificate; unencrypted HTTP is strictly disallowed.",
+    "source": "Transport Layer Security & Agent Economy Trust Requirements"
+  },
+  {
+    "signature": "url-credentials-prohibited",
+    "failurePattern": "Credentials in target URLs are not allowed",
+    "fix": "Remove embedded basic auth credentials (`user:pass@`) from the target URL.",
+    "source": "RFC 3986 Uniform Resource Identifier (URI): Generic Syntax"
+  },
+  {
+    "signature": "request-timeout",
+    "failurePattern": "Request timed out after 5 seconds",
+    "fix": "Ensure your server completes handshake and initiates response headers within the 5000ms SLA.",
+    "source": "Preflight Service Level Agreement & Timeout Policy"
+  },
+  {
+    "signature": "missing-max-timeout",
+    "failurePattern": "maxTimeoutSeconds missing or invalid",
+    "fix": "Declare `maxTimeoutSeconds: 300` within payment option to protect client funds against hanging quotes.",
+    "source": "x402 Spec v2.0 - Payment Authorization Deadlines"
+  },
+  {
+    "signature": "invalid-amount-format",
+    "failurePattern": "amount is missing or not a numeric string",
+    "fix": "Specify `amount` as an atomic integer string (e.g. `\"10000\"` representing micro-units) without floating point decimals.",
+    "source": "x402 Spec v2.0 - Numeric Representation of Value"
+  },
+  {
+    "signature": "unsupported-payment-scheme",
+    "failurePattern": "scheme is not exact",
+    "fix": "Set `\"scheme\": \"exact\"` in the payment option for single-settlement invocation guarantees.",
+    "source": "x402 Spec v2.0 - Settlement Schemes"
+  },
+  {
+    "signature": "dns-resolution-failure",
+    "failurePattern": "Could not safely resolve the target hostname",
+    "fix": "Verify domain DNS records (A/AAAA) have propagated to public DNS resolvers (e.g. 1.1.1.1).",
+    "source": "DNS Standards & Public Resolver Hygiene"
+  },
+  {
+    "signature": "redirect-limit-exceeded",
+    "failurePattern": "Target exceeded the 3-redirect limit",
+    "fix": "Eliminate circular or multi-hop redirect chains and expose the final termination URL directly.",
+    "source": "Preflight Transport Limits"
+  }
+]

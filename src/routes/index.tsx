@@ -6,16 +6,16 @@ import {
   Clock, Cpu, Network, Code2, FileJson, Fingerprint, Database,
   Wrench, Search, Package,
 } from "lucide-react";
-import { Navigation, Footer, DisclaimerBanner } from "@/components/probekit/shell";
-import { HeroScanner } from "@/components/probekit/hero-scanner";
+import { Navigation, Footer, DisclaimerBanner } from "@/components/preflight/shell";
+import { HeroScanner } from "@/components/preflight/hero-scanner";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "ASP ProbeKit — Ship your ASP with confidence" },
+      { title: "Preflight — Ship your agent service with confidence" },
       { name: "description", content: "Preflight validator for free and x402-powered A2MCP endpoints. Catch endpoint, HTTP and x402 compatibility problems before your service reaches marketplace review." },
-      { property: "og:title", content: "ASP ProbeKit — Test before you list" },
+      { property: "og:title", content: "Preflight — Test before you list" },
       { property: "og:description", content: "A protocol preflight lab for agent services. Deterministic checks, no login, no secrets." },
     ],
   }),
@@ -64,7 +64,7 @@ function Hero() {
             with <span className="text-lime text-glow-lime italic">confidence.</span>
           </h1>
           <p className="mt-6 text-lg text-muted-foreground max-w-xl leading-relaxed">
-            Catch endpoint, HTTP and x402 compatibility problems before your service reaches marketplace review.
+            LangGraph-orchestrated preflight scanner for agent services. Catch HTTP, protocol, and x402 compatibility problems with RAG-grounded fixes and validated probe provenance.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
@@ -229,7 +229,7 @@ function PacketArt({ kind }: { kind: "fail" | "warn" | "info" }) {
 function HowItWorks() {
   const steps = [
     { n: "01", title: "Paste your endpoint", body: "Provide a public HTTPS API and choose GET or POST.", icon: <Globe className="h-5 w-5" /> },
-    { n: "02", title: "Run the protocol scan", body: "ProbeKit inspects connectivity, HTTP behavior, JSON and x402 structure.", icon: <Radio className="h-5 w-5" /> },
+    { n: "02", title: "Run the protocol scan", body: "Preflight inspects connectivity, HTTP behavior, JSON and x402 structure.", icon: <Radio className="h-5 w-5" /> },
     { n: "03", title: "Fix and rerun", body: "Receive exact evidence and remediation for every failed check.", icon: <Wrench className="h-5 w-5" /> },
   ];
   return (
@@ -253,6 +253,47 @@ function HowItWorks() {
               <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{s.body}</p>
             </div>
           ))}
+        </div>
+
+        {/* Agentic pipeline LangGraph flow strip */}
+        <div className="mt-8 rounded-2xl border border-border bg-panel/60 p-6 backdrop-blur">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
+            <div>
+              <div className="text-[10px] font-mono uppercase tracking-widest text-lime">LangGraph Engine</div>
+              <h4 className="text-sm font-semibold text-foreground mt-0.5">Deterministic Orchestration with RAG Grounding</h4>
+            </div>
+            <span className="text-xs font-mono text-muted-foreground rounded-full border border-border px-3 py-1 bg-background">
+              AI reasons · Code decides
+            </span>
+          </div>
+          <div className="mt-4 flex flex-wrap items-center gap-2 text-xs font-mono">
+            {[
+              "validate_input",
+              "→",
+              "safety_gate",
+              "→",
+              "fetch (bounded)",
+              "→",
+              "classify (200 / 402 / error)",
+              "→",
+              "aggregate",
+              "→",
+              "remediate (RAG + LLM)",
+            ].map((node, i) => (
+              <span
+                key={i}
+                className={cn(
+                  node === "→"
+                    ? "text-muted-foreground"
+                    : node.includes("remediate")
+                    ? "rounded border border-lime/40 bg-lime/10 px-2 py-1 text-lime font-semibold"
+                    : "rounded border border-border bg-background px-2 py-1 text-foreground"
+                )}
+              >
+                {node}
+              </span>
+            ))}
+          </div>
         </div>
       </div>
     </section>
@@ -408,7 +449,7 @@ function SecuritySection() {
               A scanner should never become an attack surface.
             </h2>
             <p className="mt-4 text-muted-foreground max-w-md">
-              ProbeKit runs deterministic, read-only checks with strict egress hygiene. Nothing is stored, nothing is executed.
+              Preflight runs deterministic, read-only checks with strict egress hygiene. Nothing is stored, nothing is executed.
             </p>
           </div>
           <ul className="grid sm:grid-cols-2 gap-2">
@@ -440,7 +481,7 @@ function BuiltForAgents() {
         <div>
           <SectionHeader eyebrow="Built for agent services" title="Standardized. Machine-callable. Predictable." align="left" />
           <p className="mt-6 text-muted-foreground max-w-lg">
-            ProbeKit is designed for standardized machine-callable services that take parameters and return clear results.
+            Preflight is designed for standardized machine-callable services that take parameters and return clear results.
           </p>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -460,8 +501,8 @@ function BuiltForAgents() {
 
 function Faq() {
   const faqs = [
-    { q: "Is ProbeKit an official OKX certification?", a: "No. ProbeKit is an independent technical preflight tool. Passing its checks does not guarantee marketplace approval." },
-    { q: "Does ProbeKit make payments?", a: "The MVP validates x402 challenge structure but does not submit or settle payments." },
+    { q: "Is Preflight an official OKX certification?", a: "No. Preflight is an independent technical preflight tool. Passing its checks does not guarantee marketplace approval." },
+    { q: "Does Preflight make payments?", a: "The MVP validates x402 challenge structure but does not submit or settle payments." },
     { q: "Does it support free endpoints?", a: "Yes. Free endpoints that return their result directly with HTTP 200 can be audited." },
     { q: "Do I need an account?", a: "No account is required for the MVP." },
     { q: "Are my secrets required?", a: "No. Do not submit API keys, authorization headers or payment credentials." },

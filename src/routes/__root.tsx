@@ -65,10 +65,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "ASP ProbeKit — Ship your ASP with confidence" },
+      { title: "Preflight — Ship your agent service with confidence" },
       { name: "description", content: "Preflight validator for free and x402-powered A2MCP endpoints. Catch endpoint, HTTP and x402 compatibility problems before marketplace review." },
-      { name: "author", content: "ASP ProbeKit" },
-      { property: "og:title", content: "ASP ProbeKit — Test before you list" },
+      { name: "author", content: "Preflight" },
+      { property: "og:title", content: "Preflight — Ship your agent service with confidence" },
       { property: "og:description", content: "Preflight validator for free and x402-powered A2MCP endpoints." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

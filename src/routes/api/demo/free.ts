@@ -5,7 +5,7 @@ export const Route = createFileRoute("/api/demo/free")({
     handlers: {
       GET: async () => Response.json({
         status: "ok",
-        service: "ProbeKit free A2MCP demonstration",
+        service: "Preflight free A2MCP demonstration",
         result: { message: "This endpoint returns valid JSON without payment." },
       }),
     },

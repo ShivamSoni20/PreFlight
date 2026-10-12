@@ -5,9 +5,9 @@ import {
   Play, RotateCcw, Sparkles, Radio, Github, BookOpen, Home, Info,
   Loader2, X, Terminal, AlertCircle, Server,
 } from "lucide-react";
-import { Navigation, Footer, ProbeLogo, DisclaimerBanner } from "@/components/probekit/shell";
-import { ScoreGauge, SummaryCards, CheckCard, JsonViewer } from "@/components/probekit/audit-ui";
-import type { AuditReport, CheckCategory, CheckStatus } from "@/lib/probekit-types";
+import { Navigation, Footer, PreflightLogo, DisclaimerBanner } from "@/components/preflight/shell";
+import { ScoreGauge, SummaryCards, CheckCard, JsonViewer, ManifestViewer, RecommendedFixes } from "@/components/preflight/audit-ui";
+import type { AuditReport, CheckCategory, CheckStatus } from "@/lib/preflight-types";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -21,10 +21,10 @@ export const Route = createFileRoute("/dashboard")({
   validateSearch: searchSchema,
   head: () => ({
     meta: [
-      { title: "Dashboard — ASP ProbeKit" },
-      { name: "description", content: "Run a preflight audit on your free or x402-powered A2MCP endpoint." },
-      { property: "og:title", content: "ProbeKit Dashboard" },
-      { property: "og:description", content: "Endpoint preflight workspace for A2MCP services." },
+      { title: "Dashboard — Preflight" },
+      { name: "description", content: "Run a preflight audit on your free or x402-powered agent service endpoint." },
+      { property: "og:title", content: "Preflight Dashboard" },
+      { property: "og:description", content: "Endpoint preflight workspace for agent services." },
     ],
   }),
   component: DashboardPage,
@@ -159,8 +159,8 @@ function Sidebar() {
   return (
     <aside className="hidden lg:flex flex-col rounded-xl border border-border bg-panel/50 p-4 sticky top-20 self-start">
       <div className="flex items-center gap-2 text-lime px-2 py-2">
-        <ProbeLogo />
-        <span className="font-semibold text-foreground">ProbeKit</span>
+        <PreflightLogo />
+        <span className="font-semibold text-foreground">Preflight</span>
       </div>
       <nav className="mt-4 space-y-1">
         {items.map(it => (
@@ -403,7 +403,7 @@ function Results({ report }: { report: AuditReport }) {
             <p className="mt-1 text-[11px] text-muted-foreground">Audited {new Date(report.auditedAt).toLocaleString()}</p>
           </div>
           <button
-            onClick={() => { toast("Rerun triggered"); window.dispatchEvent(new Event("probekit:rerun")); }}
+            onClick={() => { toast("Rerun triggered"); window.dispatchEvent(new Event("preflight:rerun")); }}
             className="rounded-md border border-border bg-background px-4 py-2 text-sm hover:border-lime"
           >
             Rerun
@@ -481,6 +481,15 @@ function Overview({ report, onJumpChecks }: { report: AuditReport; onJumpChecks:
           )}
         </div>
       )}
+
+      {report.fixes && report.fixes.length > 0 && (
+        <RecommendedFixes fixes={report.fixes} />
+      )}
+
+      {report.probeManifest && report.probeManifest.length > 0 && (
+        <ManifestViewer manifest={report.probeManifest} />
+      )}
+
       <button onClick={onJumpChecks} className="text-sm font-mono text-lime hover:underline">View all checks →</button>
     </div>
   );

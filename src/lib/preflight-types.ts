@@ -16,6 +16,21 @@ export interface AuditCheck {
 export type EndpointType = "Free A2MCP" | "x402" | "Unknown" | "Unreachable";
 export type Readiness = "Protocol Ready" | "Almost Ready" | "Needs Fixes" | "Not Ready";
 
+export interface Remediation {
+  checkId: string;
+  fix: string;
+  confidence: "high" | "medium" | "low";
+  sources: string[];
+}
+
+export interface ProbeManifestEntry {
+  tool: string;
+  durationMs: number;
+  startedAt: string;
+  status?: "ok" | "error" | "budget-exceeded";
+  details?: Record<string, unknown>;
+}
+
 export interface AuditReport {
   auditId: string;
   targetUrl: string;
@@ -28,6 +43,8 @@ export interface AuditReport {
   summary: { passed: number; warnings: number; failed: number };
   checks: AuditCheck[];
   disclaimer: string;
+  probeManifest?: ProbeManifestEntry[];
+  fixes?: Remediation[];
 }
 
 export interface AuditRequest {

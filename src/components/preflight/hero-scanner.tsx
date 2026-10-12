@@ -36,7 +36,7 @@ export function HeroScanner() {
         <span className="h-2.5 w-2.5 rounded-full bg-amber/70" />
         <span className="h-2.5 w-2.5 rounded-full bg-pass/70" />
         <span className="ml-3 font-mono text-xs text-muted-foreground truncate">
-          probekit://scan/https://api.example.com/agents/search
+          preflight://scan/https://api.example.com/agents/search
         </span>
         <span className="ml-auto flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-widest text-lime">
           <span className="h-1.5 w-1.5 rounded-full bg-lime animate-blink" /> live
